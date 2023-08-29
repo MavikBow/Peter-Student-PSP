@@ -1,1 +1,4 @@
 build
+
+!build/assets
+!build/EBOOT.PBP
