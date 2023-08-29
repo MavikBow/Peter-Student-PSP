@@ -6,6 +6,8 @@
 
 QGTimer timer;
 
+// In-game varivables
+
 QGSprite_t mainT, bold;
 
 typedef struct
@@ -41,15 +43,13 @@ void load_menu()
 {
     char L[4]; 
 
-    switch(language)
+    if(language == RUSSIAN)
     {
-        case RUSSIAN:
-            sprintf(L, "rus");
-        break;
-        case ENGLISH:
-        default:
-            sprintf(L, "eng");
-        break;
+        sprintf(L, "rus");
+    }
+    else
+    {
+        sprintf(L, "eng");
     }
 
     char filename[256];
