@@ -3,12 +3,16 @@
 #include <pspctrl.h>
 #include <stdlib.h>
 #include <stdio.h>
+//#include "collision_lookup.h"
 
 QGTimer timer;
 
 // Player velocities
 
-float vel_x, vel_y;
+int vel_x, vel_y;
+bool started = false;
+bool canJump = false;
+int collision_direction;
 
 // In-game varivables
 
@@ -132,6 +136,11 @@ void change_lang()
 
 void load_lvl1()
 {
+    started = false;
+    vel_x = 0.0f;
+    vel_y = 0.0f;
+    canJump = true;
+
     char L[4]; 
 
     if(language == RUSSIAN)
@@ -220,6 +229,8 @@ void load_lvl1()
 
 void load_lvl2()
 {
+    started = false;
+
     QGTexInfo hint2TexInfo;
 
     if(language == RUSSIAN)
@@ -303,18 +314,27 @@ void draw_lvl1()
 {
     draw_lvl_border();
 
+    collision_direction = 0;
+
     for(int i = 0; i < 30; i++)
     {
         block->transform.position.x = lvl_layout[i].x;
         block->transform.position.y = lvl_layout[i].y;
 
         QuickGame_Sprite_Draw(block);
+
+        collision_direction |= (int)QuickGame_Sprite_Intersect_Direction(block, player);
     }
 
     QuickGame_Sprite_Draw(home);
     QuickGame_Sprite_Draw(university);
 
     QuickGame_Sprite_Draw(player);
+
+    if(!started)
+    {
+        QuickGame_Sprite_Draw(hint[0]);
+    }
 }
 
 void draw()
@@ -403,6 +423,114 @@ void switch_state(int oldS, int newS)
     }
 }
 
+void update_player(double dt)
+{
+    if(QuickGame_Button_Pressed(PSP_CTRL_CROSS))
+    {
+        if(canJump)
+        {
+            canJump = false;
+            started = true;
+            vel_y = 287;
+        }
+    }
+    if(QuickGame_Button_Held(PSP_CTRL_LEFT))
+    {
+        started = true;
+        vel_x = -150;
+    }
+    if(QuickGame_Button_Held(PSP_CTRL_RIGHT))
+    {
+        started = true;
+        vel_x = 150;
+    }
+
+    //u8 collision_direction = QuickGame_Sprite_Intersect_Direction(player, block);
+
+    if(started)
+    {
+        vel_y -= 512 * dt;
+
+        if(vel_x > 10)
+        {
+            vel_x -= 800 * dt;
+        }
+        else if(vel_x < -10)
+        {
+            vel_x += 800 * dt;
+        }
+        else
+        {
+            vel_x = 0;
+        }
+
+        if(player->transform.position.y <= 32)
+        {
+            if(vel_y < 0)
+            {
+                vel_y = 0;
+                canJump = true;
+            }
+        }
+
+        switch(collision_direction)
+        {
+            case QG_DIR_DOWN:
+                vel_y = 0;
+                canJump = true;
+            break;
+            case QG_DIR_UP:
+                vel_y = 0;
+            break;
+            case QG_DIR_LEFT:
+                if (vel_x < 0)
+                {
+                    vel_x = 0;
+                }
+            break;
+            case QG_DIR_RIGHT:
+                if (vel_x > 0)
+                {
+                    vel_x = 0;
+                }
+            break;
+        }
+        
+        player->transform.position.y += vel_y * dt;
+        player->transform.position.x += vel_x * dt;
+        /*if(QuickGame_Sprite_Intersects(player, block))
+        {
+            vel_y = 0.0f;
+        switch(collision_direction)
+        {
+            case QG_DIR_DOWN:
+                //vel_y = -512.0f * dt;
+                vel_y = 0.0f;
+            break;
+            case QG_DIR_UP:
+                vel_y = 0.0f;
+            break;
+            case QG_DIR_LEFT:
+                if(vel_x < 0)
+                {
+                    vel_x = 0;
+                }
+            break;
+            case QG_DIR_RIGHT:
+               if(vel_x > 0)
+                {
+                    vel_x = 0;
+                }
+            break;
+            default:
+                
+            break;
+        }
+        }*/
+
+    }
+}
+
 void update(double dt)
 {
     QuickGame_Input_Update();
@@ -460,8 +588,10 @@ void update(double dt)
             }
         break;
         case LVL_1:
+            update_player(dt);
         break;
         case LVL_2:
+            update_player(dt);
         break;
     }
 
@@ -476,7 +606,7 @@ int main()
     if (QuickGame_Init() < 0)
     {
         return 1;
-    }   
+    }
 
     QGColor white = {.color = 0xFFFFFF};
 
