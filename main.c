@@ -241,6 +241,41 @@ void draw()
     QuickGame_Graphics_End_Frame(true);
 }
 
+void switch_state(oldS, newS)
+{
+    switch(oldS)
+    {
+        case MENU:
+            unload_menu();
+        break;
+        case LANGUAGE:
+            unload_lang();
+        break;
+        case LVL_1:
+            unload_lvl1();
+        break;
+        case LVL_2:
+            unload_lvl2();
+        break;
+    }
+
+    switch(newS)
+    {
+        case MENU:
+            load_menu();
+        break;
+        case LANGUAGE:
+            load_lang();
+        break;
+        case LVL_1:
+            load_lvl1();
+        break;
+        case LVL_2:
+            load_lvl2();
+        break;
+    }
+}
+
 void update(double dt)
 {
     QuickGame_Input_Update();
