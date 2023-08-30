@@ -70,6 +70,9 @@ void load_menu()
 
     QGTexInfo boldTexInfo = {.filename = "./assets/text/button_bold.png", .flip = true, .vram = 0};
     bold = QuickGame_Sprite_Create_Contained(160, 110, 128, 32, boldTexInfo);
+
+    button[0].isBold = true;
+    button[1].isBold = false;
 }
 
 void load_lang()
@@ -79,10 +82,14 @@ void load_lang()
     if(language == RUSSIAN)
     {
         sprintf(L, "rus");
+        button[2].isBold = false;
+        button[3].isBold = true;
     }
     else
     {
         sprintf(L, "eng");
+        button[2].isBold = true;
+        button[3].isBold = false;
     }
 
     char filename[256];
@@ -94,7 +101,7 @@ void load_lang()
     button[2].sprite = QuickGame_Sprite_Create_Contained(160, 110, 128, 32, engTexInfo);
 
     QGTexInfo rusTexInfo = {.filename = "./assets/text/rus/rus.png", .flip = true, .vram = 0};
-    button[3].sprite = QuickGame_Sprite_Create_Contained(160, 110, 128, 32, rusTexInfo);
+    button[3].sprite = QuickGame_Sprite_Create_Contained(160, 60, 128, 32, rusTexInfo);
 
     QGTexInfo boldTexInfo = {.filename = "./assets/text/button_bold.png", .flip = true, .vram = 0};
     bold = QuickGame_Sprite_Create_Contained(160, 110, 128, 32, boldTexInfo);
@@ -148,14 +155,19 @@ void load_lvl1()
 
 void load_lvl2()
 {
+    QGTexInfo hint2TexInfo;
+
     if(language == RUSSIAN)
     {
-        QGTexInfo hint2TexInfo = {.filename = "./assets/text/rus/lvl2_hint.png", .flip = true, .vram = 0};
+        hint2TexInfo.filename = "./assets/text/rus/lvl2_hint.png";
     }
     else
     {
-        QGTexInfo hint2TexInfo = {.filename = "./assets/text/eng/lvl2_hint.png", .flip = true, .vram = 0};
+        hint2TexInfo.filename = "./assets/text/eng/lvl2_hint.png";
     }
+
+    hint2TexInfo.flip = true;
+    hint2TexInfo.vram = 0;
 
     hint[1] = QuickGame_Sprite_Create_Contained(112, 272, 256, 256, hint2TexInfo);
 }
@@ -231,6 +243,9 @@ void draw()
             {
                 bold->transform.position.y = 60;
             }
+
+            QuickGame_Sprite_Draw(bold);
+
         break;
         case LVL_1:
         break;
@@ -241,7 +256,7 @@ void draw()
     QuickGame_Graphics_End_Frame(true);
 }
 
-void switch_state(oldS, newS)
+void switch_state(int oldS, int newS)
 {
     switch(oldS)
     {
@@ -295,7 +310,8 @@ void update(double dt)
                 button[0].isBold = true;
                 button[1].isBold = false;
             }
-            else if(QuickGame_Button_Pressed(PSP_CTRL_CROSS)){
+            else if(QuickGame_Button_Pressed(PSP_CTRL_CROSS))
+            {
                 if(button[0].isBold)
                 {
                     state = LVL_1;
@@ -307,6 +323,29 @@ void update(double dt)
             }
         break;
         case LANGUAGE:
+            if(QuickGame_Button_Pressed(PSP_CTRL_DOWN))
+            {
+                button[2].isBold = false;
+                button[3].isBold = true;
+            }
+            else if(QuickGame_Button_Pressed(PSP_CTRL_UP))
+            {
+                button[2].isBold = true;
+                button[3].isBold = false;
+            }
+            else if(QuickGame_Button_Pressed(PSP_CTRL_CROSS))
+            {
+                if(button[2].isBold)
+                {
+                    language = ENGLISH;
+                }
+                else if(button[3].isBold)
+                {   
+                    language = RUSSIAN;
+                }
+
+                state = MENU;
+            }
         break;
         case LVL_1:
         break;
@@ -314,7 +353,8 @@ void update(double dt)
         break;
     }
 
-    if(old_state != state){
+    if(old_state != state)
+    {
         switch_state(old_state, state);
     }
 }
