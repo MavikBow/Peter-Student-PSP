@@ -6,6 +6,10 @@
 
 QGTimer timer;
 
+// Player velocities
+
+float vel_x, vel_y;
+
 // In-game varivables
 
 QGSprite_t mainT, bold;
@@ -18,6 +22,13 @@ typedef struct
 } Button;
 
 Button button[4];
+
+typedef struct
+{
+    int x, y;
+} Coordinate;
+
+Coordinate* lvl_layout;
 
 // State Machine
 enum mode
@@ -149,8 +160,62 @@ void load_lvl1()
     QGTexInfo homeTexInfo = {.filename = "./assets/home.png", .flip = true, .vram = 0};
     home = QuickGame_Sprite_Create_Contained(0, 0, 32, 32, homeTexInfo);    
 
-    QGTexInfo uniTexInfo = {.filename = "./assets/home.png", .flip = true, .vram = 0};
+    QGTexInfo uniTexInfo = {.filename = "./assets/university.png", .flip = true, .vram = 0};
     university = QuickGame_Sprite_Create_Contained(0, 0, 32, 64, uniTexInfo);   
+
+
+    // Making the level layout
+    lvl_layout = (Coordinate *)malloc(30 * sizeof(Coordinate));
+
+    home->transform.position.x = 80;
+    home->transform.position.y = 32;
+
+    university->transform.position.x = 48;
+    university->transform.position.y = 13 * 16;
+
+    player->transform.position.x = 40;
+    player->transform.position.y = 32;
+
+    Coordinate temp;
+    int numb = 0;
+    for(int i = 0; i < 11; i++)
+    {
+        temp.x = i + 1;
+        temp.y = 10;
+        lvl_layout[numb++] = temp;
+    }
+    for(int i = 0; i < 9; i++)
+    {
+        temp.x = i + 16;
+        temp.y = 10;
+        lvl_layout[numb++] = temp;
+    }
+    for(int i = 0; i < 3; i++)
+    {
+        temp.x = i + 14;
+        temp.y = 4;
+        lvl_layout[numb++] = temp;
+    }
+    for(int i = 0; i < 3; i++)
+    {
+        temp.x = i + 19;
+        temp.y = 5;
+        lvl_layout[numb++] = temp;
+    }
+    for(int i = 0; i < 4; i++)
+    {
+        temp.x = i + 25;
+        temp.y = 6;
+        lvl_layout[numb++] = temp;
+    }
+
+    for(int i = 0; i < 30; i++)
+    {
+        lvl_layout[i].x *= 16;
+        lvl_layout[i].x += 8;
+        lvl_layout[i].y *= 16;
+        lvl_layout[i].y += 8;
+    }
 }
 
 void load_lvl2()
@@ -205,6 +270,53 @@ void unload_lvl2()
     QuickGame_Sprite_Destroy(&university);
 }
 
+// Draw methods
+
+void draw_lvl_border()
+{
+    for(int i = 0; i < 30; i++)
+    {
+        block->transform.position.x = i * 16 + 8;
+        block->transform.position.y = 8;
+
+        QuickGame_Sprite_Draw(block);
+
+        block->transform.position.y = 264;
+
+        QuickGame_Sprite_Draw(block);   
+    }
+
+    for(int i = 1; i < 16; i++)
+    {
+        block->transform.position.y = i * 16 + 8;
+        block->transform.position.x = 8;
+
+        QuickGame_Sprite_Draw(block);
+
+        block->transform.position.x = 472;
+
+        QuickGame_Sprite_Draw(block);   
+    }
+}
+
+void draw_lvl1()
+{
+    draw_lvl_border();
+
+    for(int i = 0; i < 30; i++)
+    {
+        block->transform.position.x = lvl_layout[i].x;
+        block->transform.position.y = lvl_layout[i].y;
+
+        QuickGame_Sprite_Draw(block);
+    }
+
+    QuickGame_Sprite_Draw(home);
+    QuickGame_Sprite_Draw(university);
+
+    QuickGame_Sprite_Draw(player);
+}
+
 void draw()
 {
     QuickGame_Graphics_Start_Frame();
@@ -248,7 +360,7 @@ void draw()
 
         break;
         case LVL_1:
-        break;
+            draw_lvl1();
         case LVL_2:
         break;
     };
@@ -366,7 +478,10 @@ int main()
         return 1;
     }   
 
+    QGColor white = {.color = 0xFFFFFF};
+
     QuickGame_Graphics_Set2D();
+    QuickGame_Graphics_Set_Clear_Color(white);
     QuickGame_Timer_Start(&timer);
 
     state = MENU;
