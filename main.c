@@ -40,6 +40,8 @@ int state = MENU;
 int language = ENGLISH;
 
 
+// Load Methods
+
 void load_menu()
 {
     char L[4]; 
@@ -72,11 +74,30 @@ void load_menu()
 
 void load_lang()
 {
+    char L[4]; 
+
+    if(language == RUSSIAN)
+    {
+        sprintf(L, "rus");
+    }
+    else
+    {
+        sprintf(L, "eng");
+    }
+
+    char filename[256];
+    sprintf(filename, "./assets/text/%s/main.png", L);
+    QGTexInfo mainTexInfo = {.filename = filename, .flip = true, .vram = 0};
+    mainT = QuickGame_Sprite_Create_Contained(240, 136, 544, 272, mainTexInfo);
+
     QGTexInfo engTexInfo = {.filename = "./assets/text/eng/eng.png", .flip = true, .vram = 0};
     button[2].sprite = QuickGame_Sprite_Create_Contained(160, 110, 128, 32, engTexInfo);
 
-    QGTexInfo rusTexInfo = {.filename = "./assets/text/eng/eng.png", .flip = true, .vram = 0};
+    QGTexInfo rusTexInfo = {.filename = "./assets/text/rus/rus.png", .flip = true, .vram = 0};
     button[3].sprite = QuickGame_Sprite_Create_Contained(160, 110, 128, 32, rusTexInfo);
+
+    QGTexInfo boldTexInfo = {.filename = "./assets/text/button_bold.png", .flip = true, .vram = 0};
+    bold = QuickGame_Sprite_Create_Contained(160, 110, 128, 32, boldTexInfo);
 }
 
 void change_lang()
@@ -137,6 +158,39 @@ void load_lvl2()
     }
 
     hint[1] = QuickGame_Sprite_Create_Contained(112, 272, 256, 256, hint2TexInfo);
+}
+
+// Unload methods
+
+void unload_menu()
+{
+    QuickGame_Sprite_Destroy(&bold);
+    QuickGame_Sprite_Destroy(&button[0].sprite);
+    QuickGame_Sprite_Destroy(&button[1].sprite);
+    QuickGame_Sprite_Destroy(&mainT);
+}
+
+void unload_lang()
+{
+    QuickGame_Sprite_Destroy(&bold);
+    QuickGame_Sprite_Destroy(&button[2].sprite);
+    QuickGame_Sprite_Destroy(&button[3].sprite);
+    QuickGame_Sprite_Destroy(&mainT);
+}
+
+void unload_lvl1() // only for lvl_1 -> lvl_2
+{
+    QuickGame_Sprite_Destroy(&hint[0]);
+}
+
+void unload_lvl2()
+{
+    QuickGame_Sprite_Destroy(&hint[1]);
+    QuickGame_Sprite_Destroy(&block);
+    QuickGame_Sprite_Destroy(&player);
+    QuickGame_Sprite_Destroy(&enemy);
+    QuickGame_Sprite_Destroy(&home);
+    QuickGame_Sprite_Destroy(&university);
 }
 
 void draw()
