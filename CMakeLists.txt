@@ -12,6 +12,8 @@ target_include_directories(PeterStudent PUBLIC src/)
 
 create_pbp_file(
     TARGET PeterStudent
-    TITLE Peter the Student PSP
+    TITLE Peter-the-Student_PSP
+    ICON_PATH assets/pbpicons/ICON0.png
+    BACKGROUND_PATH assets/pbpicons/PIC1.png
     BUILD_PRX ON
 )
