@@ -13,6 +13,7 @@ int vel_x, vel_y;
 bool started = false;
 bool canJump = false;
 bool victory = false;
+bool caught = false;
 
 // In-game varivables
 
@@ -33,6 +34,12 @@ typedef struct
 } Coordinate;
 
 Coordinate* lvl_layout;
+
+// Enemy variables
+
+const float ENEMY_VELOCITY = 70.0f;
+float enemy_vel[3];
+QGVector2 enemy_coord[3];
 
 // State Machine
 enum mode
@@ -160,9 +167,6 @@ void load_lvl1()
     QGTexInfo blockTexInfo = {.filename = "./assets/block.png", .flip = true, .vram = 0};
     block = QuickGame_Sprite_Create_Contained(0, 0, 16, 16, blockTexInfo);
 
-    QGTexInfo enemyTexInfo = {.filename = "./assets/enemy.png", .flip = true, .vram = 0};
-    enemy = QuickGame_Sprite_Create_Contained(0, 0, 16, 32, enemyTexInfo);
-
     QGTexInfo playerTexInfo = {.filename = "./assets/player.png", .flip = true, .vram = 0};
     player = QuickGame_Sprite_Create_Contained(0, 0, 16, 32, playerTexInfo);
 
@@ -234,6 +238,19 @@ void load_lvl2()
     vel_y = 0.0f;
     canJump = true;
     victory = false;
+    caught = false;
+
+    enemy_coord[0].x = 9 * 16 + 8;
+    enemy_coord[0].y = 5 * 16;
+    enemy_vel[0] = -ENEMY_VELOCITY;
+
+    enemy_coord[1].x = 16 * 16 + 8;
+    enemy_coord[1].y = 6 * 16;
+    enemy_vel[1] = ENEMY_VELOCITY;
+
+    enemy_coord[2].x = 26 * 16 + 8;
+    enemy_coord[2].y = 2 * 16;
+    enemy_vel[2] = ENEMY_VELOCITY;
 
     QGTexInfo hint2TexInfo;
 
@@ -261,6 +278,9 @@ void load_lvl2()
     }
 
     hint[2] = QuickGame_Sprite_Create_Contained(240, 136, 256, 256, hint2TexInfo);
+
+    QGTexInfo enemyTexInfo = {.filename = "./assets/enemy.png", .flip = true, .vram = 0};
+    enemy = QuickGame_Sprite_Create_Contained(0, 0, 16, 32, enemyTexInfo);
 
     // Making the level layout
     lvl_layout = (Coordinate *)malloc(45 * sizeof(Coordinate));
@@ -419,6 +439,25 @@ void unload_lvl2()
 
 // Draw methods
 
+void draw_enemy()
+{
+    for(int i = 0; i < 3; i++)
+    {
+        enemy->transform.position.x = enemy_coord[i].x;
+        enemy->transform.position.y = enemy_coord[i].y;
+
+        if(enemy_vel[i] > 0)
+            QuickGame_Sprite_Draw_Flipped(enemy, QG_FLIP_HORIZONTAL);
+        else
+            QuickGame_Sprite_Draw_Flipped(enemy, QG_FLIP_NONE);
+
+        if(QuickGame_Sprite_Intersects(player, enemy))
+        {
+            caught = true;
+        }
+    }
+}
+
 void draw_lvl_border()
 {
     for(int i = 0; i < 30; i++)
@@ -499,6 +538,8 @@ void draw_lvl2()
     {
         QuickGame_Sprite_Draw(player);
     }
+
+    draw_enemy();
 
     if(!started)
     {
@@ -599,6 +640,8 @@ void switch_state(int oldS, int newS)
     }
 }
 
+// Update methods
+
 void update_player(double dt)
 {
     if(QuickGame_Button_Pressed(PSP_CTRL_CROSS))
@@ -620,6 +663,12 @@ void update_player(double dt)
     }
 
     if(victory) return;
+    if(caught)
+    {
+        player->transform.position.x = 4 * 16 + 8;
+        player->transform.position.y = 8 * 16;
+        caught = false;
+    }
 
     if(QuickGame_Button_Held(PSP_CTRL_LEFT))
     {
@@ -728,6 +777,21 @@ void update_player(double dt)
     }
 }
 
+void update_enemy(double dt)
+{
+    if(enemy_coord[0].x < 7.0f * 16.0f) enemy_vel[0] = ENEMY_VELOCITY;
+    if(enemy_coord[0].x > 10.0f * 16.0f) enemy_vel[0] = -ENEMY_VELOCITY;
+    if(enemy_coord[1].x < 15.0f * 16.0f) enemy_vel[1] = ENEMY_VELOCITY;
+    if(enemy_coord[1].x > 18.0f * 16.0f) enemy_vel[1] = -ENEMY_VELOCITY;
+    if(enemy_coord[2].x < 21.0f * 16.0f) enemy_vel[2] = ENEMY_VELOCITY;
+    if(enemy_coord[2].x > 24.0f * 16.0f) enemy_vel[2] = -ENEMY_VELOCITY;
+
+    for(int i = 0; i < 3; i++)
+    {
+        enemy_coord[i].x += enemy_vel[i] * dt;
+    }
+}
+
 void update(double dt)
 {
     QuickGame_Input_Update();
@@ -794,6 +858,7 @@ void update(double dt)
         break;
         case LVL_2:
             update_player(dt);
+            update_enemy(dt);
 
             if(QuickGame_Sprite_Intersects(player, home))
             {
