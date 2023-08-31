@@ -12,11 +12,12 @@ QGTimer timer;
 int vel_x, vel_y;
 bool started = false;
 bool canJump = false;
+bool victory = false;
 
 // In-game varivables
 
 QGSprite_t mainT, bold;
-QGSprite_t block, enemy, player, home, university, hint[2];
+QGSprite_t block, enemy, player, home, university, hint[3];
 
 typedef struct
 {
@@ -232,6 +233,7 @@ void load_lvl2()
     vel_x = 0.0f;
     vel_y = 0.0f;
     canJump = true;
+    victory = false;
 
     QGTexInfo hint2TexInfo;
 
@@ -248,6 +250,17 @@ void load_lvl2()
     hint2TexInfo.vram = 0;
 
     hint[1] = QuickGame_Sprite_Create_Contained(240, 136, 256, 256, hint2TexInfo);
+
+    if(language == RUSSIAN)
+    {
+        hint2TexInfo.filename = "./assets/text/rus/victory_hint.png";
+    }
+    else
+    {
+        hint2TexInfo.filename = "./assets/text/eng/victory_hint.png";
+    }
+
+    hint[2] = QuickGame_Sprite_Create_Contained(240, 136, 256, 256, hint2TexInfo);
 
     // Making the level layout
     lvl_layout = (Coordinate *)malloc(45 * sizeof(Coordinate));
@@ -391,7 +404,10 @@ void unload_lvl1() // only for lvl_1 -> lvl_2
 
 void unload_lvl2()
 {
+    victory = false;
+
     QuickGame_Sprite_Destroy(&hint[1]);
+    QuickGame_Sprite_Destroy(&hint[2]);
     QuickGame_Sprite_Destroy(&block);
     QuickGame_Sprite_Destroy(&player);
     QuickGame_Sprite_Destroy(&enemy);
@@ -487,6 +503,11 @@ void draw_lvl2()
     if(!started)
     {
         QuickGame_Sprite_Draw(hint[1]);
+    }
+
+    if(victory)
+    {
+        QuickGame_Sprite_Draw(hint[2]);
     }
 }
 
@@ -588,7 +609,18 @@ void update_player(double dt)
             started = true;
             vel_y = 287;
         }
+
+        if(victory)
+        {
+            victory = false;
+            started = false;
+            state = MENU;
+            return;
+        }
     }
+
+    if(victory) return;
+
     if(QuickGame_Button_Held(PSP_CTRL_LEFT))
     {
         //started = true;
@@ -762,6 +794,11 @@ void update(double dt)
         break;
         case LVL_2:
             update_player(dt);
+
+            if(QuickGame_Sprite_Intersects(player, home))
+            {
+                victory = true;
+            }
         break;
     }
 
