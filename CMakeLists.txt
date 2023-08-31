@@ -8,6 +8,7 @@ add_subdirectory(./QuickGame QuickGame)
 
 target_link_libraries(PeterStudent PUBLIC QuickGame)
 target_include_directories(PeterStudent PUBLIC QuickGame/include)
+target_include_directories(PeterStudent PUBLIC src/)
 
 create_pbp_file(
     TARGET PeterStudent

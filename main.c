@@ -3,7 +3,7 @@
 #include <pspctrl.h>
 #include <stdlib.h>
 #include <stdio.h>
-//#include "collision_lookup.h"
+#include "collision_lookup.h"
 
 QGTimer timer;
 
@@ -323,7 +323,7 @@ void draw_lvl1()
 
         QuickGame_Sprite_Draw(block);
 
-        collision_direction |= (int)QuickGame_Sprite_Intersect_Direction(block, player);
+        //collision_direction |= (int)QuickGame_Sprite_Intersect_Direction(block, player);
     }
 
     QuickGame_Sprite_Draw(home);
@@ -473,7 +473,17 @@ void update_player(double dt)
             }
         }
 
-        switch(collision_direction)
+        if(bottom_collision_1(player->transform.position.x, player->transform.position.y) == 1)
+        {
+            if(vel_y < 0)
+            {
+                vel_y = 0;
+                canJump = true;
+            }
+        }
+
+
+        /*switch(collision_direction)
         {
             case QG_DIR_DOWN:
                 vel_y = 0;
@@ -494,7 +504,7 @@ void update_player(double dt)
                     vel_x = 0;
                 }
             break;
-        }
+        }*/
         
         player->transform.position.y += vel_y * dt;
         player->transform.position.x += vel_x * dt;
