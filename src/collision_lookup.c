@@ -116,3 +116,90 @@ int right_collision_1(float x, float y)
 		return 0;
 	}
 }
+
+
+int bottom_collision_2(float x, float y)
+{
+	if(y <= 2 * SCALE)
+	{
+		return 1;
+	}
+	else if (y > 12 * SCALE)
+	{
+		return 0;
+	}
+	else
+	{
+		if(x > 24.5f * SCALE && y >= 11 * SCALE)
+		{
+			return 1;
+		}
+		else if((x < 7.5 * SCALE) && (y >= 7 * SCALE && y <= 8 * SCALE))
+		{
+			return 1;
+		}
+		else if((x >= 7 * SCALE && x < 10.5 * SCALE) && (y >= 4 * SCALE && y <= 5 * SCALE))
+		{
+			return 1;
+		}
+		else if(((x > 21.5 * SCALE && x < 25.5 * SCALE) || (x > 14.5 * SCALE && x < 18.5 * SCALE)) && (y >= 5 * SCALE && y <= 6 * SCALE))
+		{
+			return 1;
+		}
+		else if((x >= 17.5 * SCALE && x < 21.5 * SCALE) && (y >= 8 * SCALE && y <= 9 * SCALE))
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+		
+	}
+}
+
+int upper_collision_2(float x, float y)
+{
+	if(y >= 15 * SCALE + HEAD_OFFSET)
+	{
+		return 1;
+	}
+	else if(y >= 12 * SCALE + HEAD_OFFSET)
+	{
+		if(x > 21 * SCALE)
+		{
+			return 0;
+		}
+		else{
+			return 1;
+		}
+	}
+	else if(((x > 24.5f * SCALE) && (y >= 9 * SCALE + HEAD_OFFSET && y <= 10 * SCALE)))
+	{
+		return 1;
+	}
+	else if(((x > 21.5 * SCALE && x < 25.5 * SCALE) || (x > 14.5 * SCALE && x < 18.5 * SCALE)) && (y >= 3 * SCALE + HEAD_OFFSET && y <= 4 * SCALE))
+	{
+		return 1;
+	}
+	else if((x >= 17.5 * SCALE && x < 21.5 * SCALE) && (y >= 6 * SCALE + HEAD_OFFSET && y <= 7 * SCALE))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+int right_collision_2(float x, float y)
+{
+	if(x >= 29 * SCALE - BODY_OFFSET)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}

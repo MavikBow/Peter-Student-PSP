@@ -229,6 +229,9 @@ void load_lvl1()
 void load_lvl2()
 {
     started = false;
+    vel_x = 0.0f;
+    vel_y = 0.0f;
+    canJump = true;
 
     QGTexInfo hint2TexInfo;
 
@@ -244,7 +247,121 @@ void load_lvl2()
     hint2TexInfo.flip = true;
     hint2TexInfo.vram = 0;
 
-    hint[1] = QuickGame_Sprite_Create_Contained(112, 272, 256, 256, hint2TexInfo);
+    hint[1] = QuickGame_Sprite_Create_Contained(240, 136, 256, 256, hint2TexInfo);
+
+    // Making the level layout
+    lvl_layout = (Coordinate *)malloc(45 * sizeof(Coordinate));
+
+    home->transform.position.x = 28 * 16;
+    home->transform.position.y = 12 * 16;
+
+    university->transform.position.x = 3 * 16;
+    university->transform.position.y = 9 * 16;
+
+    player->transform.position.x = 4 * 16 + 8;
+    player->transform.position.y = 8 * 16;
+
+    Coordinate temp;
+    int numb = 0;
+
+    for(int i = 0; i < 6; i++)
+    {
+        temp.x = i + 1;
+        temp.y = 6; 
+        lvl_layout[numb++] = temp;
+    }
+    for(int i = 0; i < 4; i++)
+    {
+        temp.x = i + 6;
+        temp.y = 3; 
+        lvl_layout[numb++] = temp;
+    }
+
+    temp.x = 6;
+    temp.y = 5;
+    lvl_layout[numb++] = temp;
+    temp.y = 4;
+    lvl_layout[numb++] = temp;
+
+    temp.x = 9;
+    temp.y = 2;
+    lvl_layout[numb++] = temp;
+    temp.y = 1;
+    lvl_layout[numb++] = temp;
+
+    for(int i = 0; i < 3; i++)
+    {
+        temp.x = i + 3;
+        temp.y = 13; 
+        lvl_layout[numb++] = temp;
+    }
+
+    temp.x = 3;
+    temp.y = 15;
+    lvl_layout[numb++] = temp;
+    temp.y = 14;
+    lvl_layout[numb++] = temp;
+
+    temp.x = 5;
+    temp.y = 15;
+    lvl_layout[numb++] = temp;
+    temp.y = 14;
+    lvl_layout[numb++] = temp;
+
+    for(int i = 0; i < 8; i++)
+    {
+        temp.x = i + 13;
+        temp.y = 13; 
+        lvl_layout[numb++] = temp;
+    }
+
+    temp.x = 13;
+    temp.y = 15;
+    lvl_layout[numb++] = temp;
+    temp.y = 14;
+    lvl_layout[numb++] = temp;
+
+    temp.x = 20;
+    temp.y = 15;
+    lvl_layout[numb++] = temp;
+    temp.y = 14;
+    lvl_layout[numb++] = temp;
+
+    for(int i = 0; i < 3; i++)
+    {
+        temp.x = i + 15;
+        temp.y = 4; 
+        lvl_layout[numb++] = temp;
+    }
+
+    for(int i = 0; i < 3; i++)
+    {
+        temp.x = i + 18;
+        temp.y = 7; 
+        lvl_layout[numb++] = temp;
+    }
+
+    for(int i = 0; i < 3; i++)
+    {
+        temp.x = i + 22;
+        temp.y = 4; 
+        lvl_layout[numb++] = temp;
+    }
+
+    for(int i = 0; i < 4; i++)
+    {
+        temp.x = i + 25;
+        temp.y = 10; 
+        lvl_layout[numb++] = temp;
+    }
+    
+    for(int i = 0; i < 46; i++)
+    {
+        lvl_layout[i].x *= 16;
+        lvl_layout[i].x += 8;
+        lvl_layout[i].y *= 16;
+        lvl_layout[i].y += 8;
+    }
 }
 
 // Unload methods
@@ -343,6 +460,36 @@ void draw_lvl1()
     }
 }
 
+void draw_lvl2()
+{
+    draw_lvl_border();
+
+    for(int i = 0; i < 46; i++)
+    {
+        block->transform.position.x = lvl_layout[i].x;
+        block->transform.position.y = lvl_layout[i].y;
+
+        QuickGame_Sprite_Draw(block);
+    }
+
+    QuickGame_Sprite_Draw(home);
+    QuickGame_Sprite_Draw(university);
+
+    if(vel_x > 0)
+    {
+        QuickGame_Sprite_Draw_Flipped(player, QG_FLIP_HORIZONTAL);
+    }
+    else
+    {
+        QuickGame_Sprite_Draw(player);
+    }
+
+    if(!started)
+    {
+        QuickGame_Sprite_Draw(hint[1]);
+    }
+}
+
 void draw()
 {
     QuickGame_Graphics_Start_Frame();
@@ -387,7 +534,9 @@ void draw()
         break;
         case LVL_1:
             draw_lvl1();
+        break;
         case LVL_2:
+            draw_lvl2();
         break;
     };
 
@@ -442,16 +591,14 @@ void update_player(double dt)
     }
     if(QuickGame_Button_Held(PSP_CTRL_LEFT))
     {
-        started = true;
+        //started = true;
         vel_x = -150;
     }
     if(QuickGame_Button_Held(PSP_CTRL_RIGHT))
     {
-        started = true;
+        //started = true;
         vel_x = 150;
     }
-
-    //u8 collision_direction = QuickGame_Sprite_Intersect_Direction(player, block);
 
     if(started)
     {
@@ -469,39 +616,64 @@ void update_player(double dt)
         {
             vel_x = 0;
         }
-
-        if(bottom_collision_1(player->transform.position.x, player->transform.position.y) == 1)
-        {
-            if(vel_y < 0)
-            {
-                vel_y = 0;
-                canJump = true;
-            }
-        }
         
-        if(upper_collision_1(player->transform.position.x, player->transform.position.y) == 1)
+        if(state == LVL_1)
         {
-            if(vel_y > 0)
+            if(bottom_collision_1(player->transform.position.x, player->transform.position.y) == 1)
             {
-                vel_y = 0;
+                if(vel_y < 0)
+                {
+                    vel_y = 0;
+                    canJump = true;
+                }
+            }
+            else canJump = false;
+            
+            if(upper_collision_1(player->transform.position.x, player->transform.position.y) == 1)
+            {
+                if(vel_y > 0)
+                {
+                    vel_y = 0;
+                }
+            }
+
+            if(left_collision_1(player->transform.position.x, player->transform.position.y) == 1)
+            {
+                if(vel_x < 0)
+                {
+                    vel_x = 0;
+                }
+            }
+
+            if(right_collision_1(player->transform.position.x, player->transform.position.y) == 1)
+            {
+                if(vel_x > 0)
+                {
+                    vel_x = 0;
+                }
+            }
+        }
+        else if(state == LVL_2)
+        {
+            if(bottom_collision_2(player->transform.position.x, player->transform.position.y) == 1)
+            {
+                if(vel_y < 0)
+                {
+                    vel_y = 0;
+                    canJump = true;
+                }
+            }
+            else canJump = false;
+
+            if(upper_collision_2(player->transform.position.x, player->transform.position.y) == 1)
+            {
+                if(vel_y > 0)
+                {
+                    vel_y = 0;
+                }
             }
         }
 
-        if(left_collision_1(player->transform.position.x, player->transform.position.y) == 1)
-        {
-            if(vel_x < 0)
-            {
-                vel_x = 0;
-            }
-        }
-
-        if(right_collision_1(player->transform.position.x, player->transform.position.y) == 1)
-        {
-            if(vel_x > 0)
-            {
-                vel_x = 0;
-            }
-        }
         
         player->transform.position.y += vel_y * dt;
         player->transform.position.x += vel_x * dt;
@@ -566,6 +738,11 @@ void update(double dt)
         break;
         case LVL_1:
             update_player(dt);
+
+            if(QuickGame_Sprite_Intersects(player, university))
+            {
+                state = LVL_2;
+            }
         break;
         case LVL_2:
             update_player(dt);
