@@ -12,6 +12,8 @@ void hello(void);
 
 int bottom_collision_1(float x, float y);
 
+int upper_collision_1(float x, float y);
+
 #if __cplusplus
 };
 #endif

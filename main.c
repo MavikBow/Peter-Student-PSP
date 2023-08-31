@@ -155,7 +155,7 @@ void load_lvl1()
     char filename[256];
     sprintf(filename, "./assets/text/%s/lvl1_hint.png", L);
     QGTexInfo hint1TexInfo = {.filename = filename, .flip = true, .vram = 0};
-    hint[0] = QuickGame_Sprite_Create_Contained(112, 272, 256, 256, hint1TexInfo);
+    hint[0] = QuickGame_Sprite_Create_Contained(240, 136, 256, 256, hint1TexInfo);
 
     QGTexInfo blockTexInfo = {.filename = "./assets/block.png", .flip = true, .vram = 0};
     block = QuickGame_Sprite_Create_Contained(0, 0, 16, 16, blockTexInfo);
@@ -314,22 +314,25 @@ void draw_lvl1()
 {
     draw_lvl_border();
 
-    collision_direction = 0;
-
     for(int i = 0; i < 30; i++)
     {
         block->transform.position.x = lvl_layout[i].x;
         block->transform.position.y = lvl_layout[i].y;
 
         QuickGame_Sprite_Draw(block);
-
-        //collision_direction |= (int)QuickGame_Sprite_Intersect_Direction(block, player);
     }
 
     QuickGame_Sprite_Draw(home);
     QuickGame_Sprite_Draw(university);
 
-    QuickGame_Sprite_Draw(player);
+    if(vel_x > 0)
+    {
+        QuickGame_Sprite_Draw_Flipped(player, QG_FLIP_HORIZONTAL);
+    }
+    else
+    {
+        QuickGame_Sprite_Draw(player);
+    }
 
     if(!started)
     {
@@ -464,15 +467,6 @@ void update_player(double dt)
             vel_x = 0;
         }
 
-        if(player->transform.position.y <= 32)
-        {
-            if(vel_y < 0)
-            {
-                vel_y = 0;
-                canJump = true;
-            }
-        }
-
         if(bottom_collision_1(player->transform.position.x, player->transform.position.y) == 1)
         {
             if(vel_y < 0)
@@ -481,63 +475,17 @@ void update_player(double dt)
                 canJump = true;
             }
         }
-
-
-        /*switch(collision_direction)
+        
+        if(upper_collision_1(player->transform.position.x, player->transform.position.y) == 1)
         {
-            case QG_DIR_DOWN:
+            if(vel_y > 0)
+            {
                 vel_y = 0;
-                canJump = true;
-            break;
-            case QG_DIR_UP:
-                vel_y = 0;
-            break;
-            case QG_DIR_LEFT:
-                if (vel_x < 0)
-                {
-                    vel_x = 0;
-                }
-            break;
-            case QG_DIR_RIGHT:
-                if (vel_x > 0)
-                {
-                    vel_x = 0;
-                }
-            break;
-        }*/
+            }
+        }
         
         player->transform.position.y += vel_y * dt;
         player->transform.position.x += vel_x * dt;
-        /*if(QuickGame_Sprite_Intersects(player, block))
-        {
-            vel_y = 0.0f;
-        switch(collision_direction)
-        {
-            case QG_DIR_DOWN:
-                //vel_y = -512.0f * dt;
-                vel_y = 0.0f;
-            break;
-            case QG_DIR_UP:
-                vel_y = 0.0f;
-            break;
-            case QG_DIR_LEFT:
-                if(vel_x < 0)
-                {
-                    vel_x = 0;
-                }
-            break;
-            case QG_DIR_RIGHT:
-               if(vel_x > 0)
-                {
-                    vel_x = 0;
-                }
-            break;
-            default:
-                
-            break;
-        }
-        }*/
-
     }
 }
 
