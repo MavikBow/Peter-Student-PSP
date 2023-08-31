@@ -672,6 +672,22 @@ void update_player(double dt)
                     vel_y = 0;
                 }
             }
+
+            if(left_collision_2(player->transform.position.x, player->transform.position.y) == 1)
+            {
+                if(vel_x < 0)
+                {
+                    vel_x = 0;
+                }
+            }
+
+            if(right_collision_2(player->transform.position.x, player->transform.position.y) == 1)
+            {
+                if(vel_x > 0)
+                {
+                    vel_x = 0;
+                }
+            }
         }
 
         

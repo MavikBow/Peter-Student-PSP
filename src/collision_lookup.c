@@ -192,6 +192,33 @@ int upper_collision_2(float x, float y)
 	}
 }
 
+int left_collision_2(float x, float y)
+{
+	if(x <= 1 * SCALE + BODY_OFFSET)
+	{
+		return 1;
+	}
+	else
+	{
+		if((x >= 6 * SCALE + BODY_OFFSET && x <= 7 * SCALE + BODY_OFFSET) && (y < 8 * SCALE - 5))
+		{
+			return 1;
+		}
+		else if((x >= 9 * SCALE + BODY_OFFSET && x <= 10 * SCALE + BODY_OFFSET) && (y < 5 * SCALE - 5))
+		{
+			return 1;
+		}
+		else if((x >= 20 * SCALE + BODY_OFFSET && x <= 21 * SCALE + BODY_OFFSET) && (y > 12 * SCALE))
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+}
+
 int right_collision_2(float x, float y)
 {
 	if(x >= 29 * SCALE - BODY_OFFSET)
