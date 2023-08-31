@@ -14,6 +14,10 @@ int bottom_collision_1(float x, float y);
 
 int upper_collision_1(float x, float y);
 
+int left_collision_1(float x, float y);
+
+int right_collision_1(float x, float y);
+
 #if __cplusplus
 };
 #endif

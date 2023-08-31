@@ -7,6 +7,7 @@ void hello(void)
 
 const float SCALE = 16.0f;
 const float HEAD_OFFSET = 4.0f;
+const float BODY_OFFSET = 8.0f;
 
 int bottom_collision_1(float x, float y) //0 - no collision; 1 - yes collision
 {
@@ -92,3 +93,26 @@ int upper_collision_1(float x, float y) // 0 - no collision; 1 - yes collision
 	}
 }
 
+int left_collision_1(float x, float y)
+{
+	if(x <= 1 * SCALE + BODY_OFFSET)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+int right_collision_1(float x, float y)
+{
+	if(x >= 29 * SCALE - BODY_OFFSET)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}

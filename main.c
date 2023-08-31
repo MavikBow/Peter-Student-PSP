@@ -12,7 +12,6 @@ QGTimer timer;
 int vel_x, vel_y;
 bool started = false;
 bool canJump = false;
-int collision_direction;
 
 // In-game varivables
 
@@ -269,6 +268,8 @@ void unload_lang()
 void unload_lvl1() // only for lvl_1 -> lvl_2
 {
     QuickGame_Sprite_Destroy(&hint[0]);
+
+    free(lvl_layout);
 }
 
 void unload_lvl2()
@@ -279,6 +280,8 @@ void unload_lvl2()
     QuickGame_Sprite_Destroy(&enemy);
     QuickGame_Sprite_Destroy(&home);
     QuickGame_Sprite_Destroy(&university);
+
+    free(lvl_layout);
 }
 
 // Draw methods
@@ -481,6 +484,22 @@ void update_player(double dt)
             if(vel_y > 0)
             {
                 vel_y = 0;
+            }
+        }
+
+        if(left_collision_1(player->transform.position.x, player->transform.position.y) == 1)
+        {
+            if(vel_x < 0)
+            {
+                vel_x = 0;
+            }
+        }
+
+        if(right_collision_1(player->transform.position.x, player->transform.position.y) == 1)
+        {
+            if(vel_x > 0)
+            {
+                vel_x = 0;
             }
         }
         
